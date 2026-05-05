@@ -1,0 +1,9 @@
+﻿Name,Cost,Description,Quantity
+STM32G431RBT,£2.88,170MHz Arm Cortex M4 with math acceleration,1
+ESP32 Super Mini C3,,,1
+DRV8231AD,£1.17 x 2 = £2.34,"TI H bridge motor driver IC, 35V 3.7A with current regulation",2
+LSM6DS3,£1.36,6DoF IMU,1
+RPX 2.5 CT,£3.70,"28V max input, 2.5A buck converter QFN",1
+AP2112K 3.3V,£0.1,3.3V output LDO Regulator,1
+SWD_2x05_10_pin,,ST link male header,1
+IDC_Male_Header,,20 pin expansion bus IDC cable header,1
