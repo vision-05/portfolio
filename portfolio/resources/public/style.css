@@ -1,13 +1,11 @@
 /* --- 1. Variables & Global Settings --- */
 :root {
-  --bg-color: #07090f;
-  --panel-bg: #0d111a;
-  --text-main: #a3b8cc;
-  --text-muted: #5e7387;
+  --bg-color: #ffffff;
+  --panel-bg: #ffffff;
+  --text-main: #000000;
+  --text-muted: #000000;
   
-  /* Circuit Glow Colors */
-  --neon-primary: #00f3ff;
-  --neon-secondary: #ff00ea;
+  --waterloo: #76D0BD;
   
   --font-tech: 'Share Tech Mono', monospace;
 }
@@ -34,7 +32,7 @@ body {
 }
 
 h1, h2, h3 {
-  color: #ffffff;
+  color: var(--text-main);
   text-transform: uppercase;
   letter-spacing: 2px;
   margin-bottom: 1rem;
@@ -120,14 +118,14 @@ h1, h2, h3 {
 }
 
 /* --- 5. Interactive Elements --- */
-.cyber-btn {
+button.cyber-btn {
   margin-top: 1.5rem;
   background: transparent;
-  color: var(--neon-primary);
+  color: var(--waterloo);
   font-family: var(--font-tech);
   font-size: 1rem;
   padding: 0.75rem 2rem;
-  border: 1px solid var(--neon-primary);
+  border: 1px solid var(--waterloo);
   text-transform: uppercase;
   letter-spacing: 2px;
   cursor: pointer;
@@ -137,14 +135,14 @@ h1, h2, h3 {
 }
 
 /* Button Hover State */
-.cyber-btn:hover {
-  background: var(--neon-primary);
+button.cyber-btn:hover {
+  background: var(--waterloo);
   color: var(--bg-color);
-  box-shadow: 0 0 15px var(--neon-primary);
+  box-shadow: 0 0 15px var(--waterloo);
 }
 
 /* Button Tech Glitch/Scanline effect on hover */
-.cyber-btn::before {
+button.cyber-btn::before {
   content: "";
   position: absolute;
   top: 0;
@@ -160,6 +158,10 @@ h1, h2, h3 {
   transition: all 0.4s ease;
 }
 
-.cyber-btn:hover::before {
+button.cyber-btn:hover::before {
   left: 100%;
+}
+
+td {
+  border: 2px solid var(--waterloo);
 }

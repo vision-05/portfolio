@@ -10,7 +10,7 @@
 
 (defn posts-list []
   (let [posts @(re-frame/subscribe [::subs/post-slugs])]
-    (conj [:ul] (map #(vector :div.cyber-button {:key (:slug %) :on-click (fn [] (re-frame/dispatch [::events/fetch-post (:slug %)]))} (:slug %)) posts))))
+    (conj [:div.blogbar] (map #(vector :button.cyber-btn {:key (:slug %) :on-click (fn [] (re-frame/dispatch [::events/fetch-post (:slug %)]))} (:slug %)) posts))))
 
 (defn post-view []
   (let [cur-post @(re-frame/subscribe [::subs/cur-post])
@@ -50,11 +50,16 @@
   (let [error @(re-frame/subscribe [::subs/error])]
     [:p error]))
 
+(defn title-view []
+  [:div
+   [:h2 "Hi, I'm Tim"]
+   [:h3 "I'm a Robotics and AI undergraduate sharing all things engineering on this page!"]])
+
 (defn main-panel []
   (let [name (re-frame/subscribe [::subs/name])
         cur-post @(re-frame/subscribe [::subs/cur-post])]
     [:div
-     [error-view]
+     [title-view]
      [posts-list]
      [:h1 cur-post]
      [blog-post-view]]))
