@@ -7,7 +7,6 @@
    [portfolio.config :as config]
    ))
 
-
 (defn dev-setup []
   (when config/debug?
     (println "dev mode")))
@@ -20,5 +19,6 @@
 
 (defn init []
   (re-frame/dispatch-sync [::events/initialize-db])
+  (re-frame/dispatch-sync [::events/fetch-post-slugs])
   (dev-setup)
   (mount-root))

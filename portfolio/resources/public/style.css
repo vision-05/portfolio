@@ -1,0 +1,167 @@
+/* --- 1. Variables & Global Settings --- */
+:root {
+  --bg-color: #ffffff;
+  --panel-bg: #ffffff;
+  --text-main: #000000;
+  --text-muted: #000000;
+  
+  --waterloo: #76D0BD;
+  
+  --font-tech: 'Share Tech Mono', monospace;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  font-family: var(--font-tech);
+  line-height: 1.6;
+  padding: 2rem;
+  
+  /* Subtle PCB Grid Background */
+  background-image: 
+    linear-gradient(rgba(0, 243, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 243, 255, 0.05) 1px, transparent 1px);
+  background-size: 30px 30px;
+  background-position: center center;
+}
+
+h1, h2, h3 {
+  color: var(--text-main);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 1rem;
+}
+
+/* --- 2. Typography & Effects --- */
+.glow-text {
+  color: var(--neon-primary);
+  text-shadow: 
+    0 0 5px rgba(0, 243, 255, 0.5),
+    0 0 10px rgba(0, 243, 255, 0.3);
+}
+
+.tech-header {
+  margin-bottom: 3rem;
+  border-bottom: 1px solid var(--text-muted);
+  padding-bottom: 1rem;
+  display: inline-block;
+}
+
+/* --- 3. Circuit Panels --- */
+.dashboard {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+.circuit-panel {
+  background: var(--panel-bg);
+  padding: 2rem;
+  position: relative;
+  border: 1px solid rgba(0, 243, 255, 0.2);
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+  /* Cut corners effect */
+  clip-path: polygon(
+    0 15px, 
+    15px 0, 
+    100% 0, 
+    100% calc(100% - 15px), 
+    calc(100% - 15px) 100%, 
+    0 100%
+  );
+}
+
+/* --- 4. The "Circuit Trace" Lines using Pseudo-elements --- */
+/* Top-left trace line */
+.circuit-panel::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 20px;
+  width: 60px;
+  height: 15px;
+  border-bottom: 2px solid var(--neon-primary);
+  border-right: 2px solid var(--neon-primary);
+  box-shadow: 2px 2px 5px rgba(0, 243, 255, 0.2);
+}
+
+/* Top-left trace node (the dot) */
+.circuit-panel::after {
+  content: "";
+  position: absolute;
+  top: 11px;
+  left: 80px;
+  width: 8px;
+  height: 8px;
+  background: var(--neon-primary);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--neon-primary);
+}
+
+/* Optional variation for different colored traces */
+.circuit-panel.secondary-trace {
+  border-color: rgba(255, 0, 234, 0.2);
+}
+.circuit-panel.secondary-trace::before {
+  border-color: var(--neon-secondary);
+  box-shadow: 2px 2px 5px rgba(255, 0, 234, 0.2);
+}
+.circuit-panel.secondary-trace::after {
+  background: var(--neon-secondary);
+  box-shadow: 0 0 8px var(--neon-secondary);
+}
+
+/* --- 5. Interactive Elements --- */
+button.cyber-btn {
+  margin-top: 1.5rem;
+  background: transparent;
+  color: var(--waterloo);
+  font-family: var(--font-tech);
+  font-size: 1rem;
+  padding: 0.75rem 2rem;
+  border: 1px solid var(--waterloo);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+/* Button Hover State */
+button.cyber-btn:hover {
+  background: var(--waterloo);
+  color: var(--bg-color);
+  box-shadow: 0 0 15px var(--waterloo);
+}
+
+/* Button Tech Glitch/Scanline effect on hover */
+button.cyber-btn::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg, 
+    transparent, 
+    rgba(255, 255, 255, 0.4), 
+    transparent
+  );
+  transition: all 0.4s ease;
+}
+
+button.cyber-btn:hover::before {
+  left: 100%;
+}
+
+td {
+  border: 2px solid var(--waterloo);
+}

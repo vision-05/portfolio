@@ -7,6 +7,9 @@
  :dependencies
  [[reagent "1.1.1"]
   [re-frame "1.4.2"]
+  [day8.re-frame/http-fx "0.2.4"]
+  [cljs-ajax "0.8.4"]
+  [markdown-clj "1.11.7"]
 
   [binaryage/devtools "1.0.6"]]
 
