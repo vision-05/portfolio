@@ -37,6 +37,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
+          cache: npm
+          cache-dependency-path: portfolio/package-lock.json
 
       - name: Cache Maven (.m2) deps
         uses: actions/cache@v4
@@ -46,7 +48,7 @@ jobs:
           restore-keys: ${{ runner.os }}-m2-
 
       - name: Install npm dependencies
-        run: npm install
+        run: npm ci
 
       - name: Build release
         run: npx shadow-cljs release app
