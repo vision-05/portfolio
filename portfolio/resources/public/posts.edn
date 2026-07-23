@@ -1,3 +1,8 @@
 [{:slug "cartpole" :author "Tim" :title "Cart Pole Project" :date "2026-05-05" :tags ["Robotics" "Control Systems" "Reinforcement Learning"]}
  {:slug "vibook" :author "Tim" :title "ViBook interactive touch book Project" :date "2026-05-05" :tags ["Embedded Systems" "PCB"]}
- {:slug "halo" :author "Tim" :title "HALO - Holistic Agentic Living Orchestration" :date "2026-11-05" :tags ["Agentic Systems", "AI", "LLMs"]}]
+ {:slug "halo" :author "Tim" :title "HALO - Holistic Agentic Living Orchestration" :date "2026-11-05" :tags ["Agentic Systems", "AI", "LLMs"]}
+ {:slug "marshgazers" :author "Tim" :title "Marshgazers - UK SEDS ORTS Rover" :date "2026-07-21" :tags ["Embedded Systems" "PCB" "Firmware"]}
+ {:slug "tfs" :author "Tim" :title "Transport For Slough" :date "2026-07-23" :tags ["C++" "Hybrid Time/Event Driven Sim" "Performance"]}
+ {:slug "bettercode" :author "Tim" :title "BetterCode - The original remote editor" :date "2026-07-21" :tags ["Clojure"]}]
+ 
+
