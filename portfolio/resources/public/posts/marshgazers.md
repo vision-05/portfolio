@@ -21,10 +21,10 @@ An additional challenge was to achieve the highest level of autonomy possible. I
 ![out/marshgazers.svg](MarshGazers PCB Schematic)
 
 ### Phase 4 - PCB layout design
-![out/marshgazers-F_Cu.svg](Front Copper)
-![out/marshgazers-In1_Cu.svg](Inner layer 1)
-![out/marshgazers-In2_Cu.svg] (Inner layer 2)
-![out/marshgazers-B_Cu.svg] (Back Copper)
+![Front Copper](out/marshgazers-F_Cu.svg)
+![Ground Plane](out/marshgazers-In1_Cu.svg)
+![Power Plane](out/marshgazers-In2_Cu.svg) 
+![Back Copper](out/marshgazers-B_Cu.svg)
 
 ### Phase 5 - DFM check and manufacture
 
