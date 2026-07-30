@@ -104,20 +104,47 @@ This device acts like an open circuit when biased in one direction, and a short 
 I opted for the SQJ461EP P channel mosfet as it has very high voltage and current ratings, and our maximum projected current draw could be as much as 15A.
 
 #### Bulk Capacitors
+Bulk capacitors exist to a) supply additional voltage to components when they draw suddenly and need quick extra voltage or b) act as a reservoir when supply voltage sags. In general it has the effect of smoothing out transients, absorbing extra voltage from source and then supplying when needed. I decided the main circuit would suffice with a single SMD 470uF electrolytic capacitor. This proved to be plenty for all of the motors. This was OK because the LiPo has a very fast discharge rate and is often OK to supply current quickly, unlike other types of battery. However for the Jetson board, we needed to make sure it had its own reservoir, as its current draw can be quite high (up to 5A surge, 3A nominal), thus I used a 1000uF capacitor, this is mainly to avoid brownouts if there is a case that the voltage sags significantly when the motors are under heavy load. It turns out that this configuration worked perfectly and we never had any unexpected stalls or shutdowns from any components.
 
 #### Decoupling Capacitors
+Decoupling capacitors act as filters to your power supply, with the aim of removing noise so your reference voltages are stable. Without these, microcontrollers and other active components may brownout, or reset due to temporary voltage sags below operating voltage. Things to consider: 0.1uF standard is outdated, higher capacitance reduces the cutoff frequency, meaning a stronger filtering effect, however reaching very high capacitances means larger, more expensive parts. In general you want to use small footprint MLCC capacitors.
+
+The circuit of a decoupling capacitor should be the shortest path between the pin where power is supplied to and the ground near it. This reduces parasitic inductance, which has the opposite effect of capacitance in a decoupling circuit. In this way, smaller footprint capacitors are better, but keep in mind that MultiLayer Ceramic Capacitors suffer from a phenomenon called DC bias derating, where the effective capacitance is lowered when a constant voltage is applied across it. Higher voltage causes higher derating, but higher voltage rated capacitors are less affected by this. Thus at 12V for instance, an 0402 1uF capacitor may actually only have 40% of its capacitance available, so act as a 0.4uF capacitor. Larger footprint capacitors will derate less, but then they take up more space and give a longer circuit for ESL to impact decoupling. I typically choose 1uF 0402s from Samsung. You can check the capacitor datasheets to see the derating characteristics and view the Bode plots for their filtering frequencies.
+
+Furthermore, for analog circuits this may not be enough. Typically for analog supply voltage, it is also separated by a ferrite bead, which is essentially a frequency dependent resistor. An ideal ferrite bead increases impedance with frequency, but in the real world with both parasitic capacitances and inductances, there is a more capacitive impedance, then a peak where the two are equal, and then a more inductive impedance. The characteristics, such as amount of ohms of impedance and bode plot for attenuation can wildly differ, so ferrite beads need to be chosen carefully with regard to the signals encountered in the circuit. With more lower frequency signals, it might be more important to pick a ferrite bead with higher resistance in the lower frequencies, whereas in high speed designs, high speed noise will dominate and a stronger peak in the MHz would be more important.
 
 #### Omission of per motor current sense
+Per motor current sense was considered, although was ultimately not decided to be too useful as the motors we use already have built in feedback. It made no operational difference and saved on a little bit of complexity in our design.
 
 #### Omission of individual motor bulk capacitors
+It could have been more proper to add bulk capacitors for each individual motor, however qualitatively there was no need, leading to a saving of space in our board.
 
 #### Omission of power regulation for Jetson
+Best practice would be to power the Jetson with a constant voltage level, say 12V. The minimum accepted voltage is 9V, which is lower than what our battery would be supplying, thus we decided there is low risk of a brownout. There could be the case of a voltage sag, but then this would probably cause bigger issues to the battery if it did sag below 9V, and furthermore, the rather large 1000uF capacitor on the power supply to the Jetson was able to handle the transient demands just fine in practice. I did however design a second power board for the Jetson, with a buck boost converter (and audio module, just for fun), however the spec of buck-boost is relatively high and the chip alone cost £15, being more expensive than any other individual part in the BOM. Thus, this would also be cost saving to leave out, beyond size, time, complexity, etc.
 
 ### Phase 4 - PCB layout design
 ![](out/marshgazers-F_Cu.svg)
 ![](out/marshgazers-In1_Cu.svg)
 ![](out/marshgazers-In2_Cu.svg) 
 ![](out/marshgazers-B_Cu.svg)
+
+#### Edge footprint
+
+#### Noise considerations
+
+#### Rough placement
+
+#### Split power plane
+
+#### Screw terminal connectors
+
+#### UART headers
+
+#### XT GH for CAN bus
+
+#### Molex connectors for servo
+
+#### Final placement
 
 ### Phase 5 - DFM check and manufacture
 
