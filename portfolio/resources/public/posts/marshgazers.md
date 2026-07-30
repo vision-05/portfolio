@@ -65,8 +65,53 @@ Finally, for our IMU we select an IMU with SPI communication (usually they also 
 
 Then given the MicroROS requirement, we need an MCU that has at least 50kB of RAM to provide enough heap space for MicroROS with any other firmware memory.
 
+#### MCU
+
 This led me to the choice of the STM32G4A1KEU6. This is probably the smallest, lowest powered STM32 chip that supports MicroROS, with Arm M4 Cortex core at 170MHz clock. It comes in a smallest package of 32-UFQFPN which is what we chose to use, being 5mmx5mm. It has multiple UART, SPI, and CAN_FD peripherals, which means it supports all of our requirments, and gives us a good number of pins in a very small form factor. The cost for this part was about £5 at the time of manufacture.
 
+#### Voltage Regulation
+
+Then from the MCU choice we can work out the MCU's power requirements. The STM32 chips generally operate between a 2.7V-3.7V range, and we have a Battery supply voltage anywhere from 9V (absolute minimum) to 12.6V. This means we have to step down voltage, and especially because we are using an analog pin on the STM32, we have to make sure we have a stable input/reference voltage. 
+
+In general, there are 2 types of voltage regulators, linear and switching. Linear regulators are clean and stable, but they use resistance to drop voltage, and therefore generate lots of heat if high voltages need to be dropped. This also means efficiency is relatively low, on the scale of 40% for dropping 12V down to 5V. On the other hand, switching regulators use a duty cycle, similar to the concept of PWM, to make an average lower voltage, with much less loss to heat, giving potential efficiencies of 90% for the same voltage drop. However, because of the switching nature of these regulators (and often they need inductors which can add to parasitic effects and EMI), they are very noisy and can intefere with other signals.
+
+For these reasons I chose a 2 stage step down configuration, with a switching buck converter to drop battery voltage to 5V, and then a Low Dropout (Linear) Regulator, to step down from the 5V to the 3.3V logic level. This mode can also be quite good if you have certain devices that require a 5V logic level as you have built in this capability into your board by default.
+
+The specific regulators I chose were the RPX 2.5 (my normal go to) and the TPS7A0533PDQNR.
+I usually go with the RPX 2.5 module as it is a complete module, shielded with a built in inductor in silico. This means I don't have to add an external inductor to the circuit and noise becomes less of an issue as it is already shielded. The TPS7A0533PDQNR was chosen due to its small form factor, being in a 4-X2SON package, and its low voltage dropout of 0.235V. Furthermore it provides enough current (200mA) for all of our logic needs.
+
+#### CAN transceiver
+I chose the TJA1051T CAN transciever, the 3.3V variant. It is in an SOT-8 form factor so is reasonably small. It does the exact job needed and costs £1.40
+
+#### IMU
+For the IMU I selected an LSM6DSV16X 6 axis IMU. It is expensive but also high quality, and has an SPI or I2C interface. Importantly, it has the option for operating at a low power mode, running its own embedded AI models for stuck-detection or terrain classification and has the ability to run its own control loop with an embedded state machine, if you desire to offload some data processing. It also has very good internal filtering.
+
+#### Battery Voltage Sensing
+For safety reasons, and mission control, we chose to measure the battery voltage throughout. The system then shuts off when the battery reaches a 9.6V threshold, so the LiPo never reaches the discharge limit of 3V per cell (9V total voltage). I chose the simplest schema, a voltage divider feeding into an analog to digital converter pin on the STM32. The voltage divider limits the maximum input voltage as a ratio of the maximum battery voltage, so we do not cause damage to the STM32 with higher than tolerable voltage levels. The choice of resistor heavily impacts the accuracy of this reading. With +-10% resistor accuracies, in our voltage range there was a roughly 0.1V persistent error after calibration, but we determined that this is OK, as it is roughly 0.3% of our total range, and insignificant for the purpose of our threshold.
+
+#### Transient Voltage Surge Protection
+When powering a circuit by a battery with a fast discharge rate, such as our LiPo battery, often time sudden loads can cause momentary, sudden peaks in voltage that are higher than the battery's maximum voltage, much like how the battery can do the reverse by sagging under sustained loads. Without TVS protection, our converters or other components may receive too much voltage suddenly and become damaged. One protection we have employed for our capacitors is making sure capacitor voltage ratings are 2x their expected load (25V for a 12.6V supply, less is OK for the 3.3V powered section). We can use a Transient Voltage Surge protection diode, which acts as an open circuit, until the voltage reaches a threshold, and then it acts as a short to ground for any additional voltage.
+
+I used the SMAJ13CA-13F TVS diode, with a 13V reverse standoff voltage and 14.4 to 15.9V breakdown voltage. The max clamping voltage is 21.5V, meaning any transient voltage between 14.4-15.9V and 21.5V will be shunted to ground. Note that these devices can't withstand sustained surges as they have a significantly lower steady state power dissipation as opposed to their peak pulse disippation.
+
+#### Reverse Bias Protection
+When designing a circuit, there is often a risk that somehow, power and ground are reversed. Some components have built in protection, but you often don't want to rely on this entirely. The two main solutions are asymmetric/one way connectors, or reverse bias protection. One way connectors guarantee that only one orientation of wire configuration can contact the board, but it still relies on the proper creation of connector cables to make sure the right nets are connected to each other. It is still possible to damage a board with one way connectors, if for instance ground and power are swapped from the standard positions in a connector, or custom connectors have been fabricated. Therefore, the foolproof method is to use a P channel MOSFET.
+
+Diagram here.
+
+This device acts like an open circuit when biased in one direction, and a short circuit in the other. You should place one of these in front of any connector before any other nets are reached, or at the very least in front of any connectors where polarity may be flipped.
+
+I opted for the SQJ461EP P channel mosfet as it has very high voltage and current ratings, and our maximum projected current draw could be as much as 15A.
+
+#### Bulk Capacitors
+
+#### Decoupling Capacitors
+
+#### Omission of per motor current sense
+
+#### Omission of individual motor bulk capacitors
+
+#### Omission of power regulation for Jetson
 
 ### Phase 4 - PCB layout design
 ![](out/marshgazers-F_Cu.svg)
