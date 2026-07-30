@@ -20,6 +20,8 @@ The initial electronics design was laid out by my teammate, who worked on the el
 - Power up and control up to 6 ST3020 servo motors simultaneously
 - Kill switch for instant power off
 
+MAYBE ADD POWER BUDGET
+
 These 4 requirements are all we need to get our mission completed successfully. The initial electronics system therefore was made up of:
 - FPV drone power delivery board
 - Arduino Giga R1 Wifi
@@ -129,28 +131,72 @@ Best practice would be to power the Jetson with a constant voltage level, say 12
 ![](out/marshgazers-B_Cu.svg)
 
 #### Edge footprint
+I began with a 29.5x63.5mm rectangle. The aim was to have as small of a footpring as possible while successfully routing all of the components, minimising EMI, noise and having good thermal design.
 
 #### Noise considerations
+My main noise considerations come from the motors/battery and the switching converter. In our case motor signal is carried by UART so unlike a PWM signal it is not as much of a noise inducer. The motor power itself and the battery are higher voltage, and also unregulated supply, so we try to keep that away from the logic components
 
 #### Rough placement
+The 12V nets are placed on the right hand side of the board and the 3.3V are placed on the left hand side. The motor connectors are positioned in the top middle of the board, with the board in and jetson out power connectors on the bottom right. The IMU is placed in the top left, furthest from the noisy switching converter, and the MCU is on the left hand side of the board. The CAN and UART connectors are also placed on the left hand side. The Jetson power connector was more of an afterthought (unfortunately these things slip your mind sometimes), so I extended a portion of the bottom right corner to accomodate it, making the width on the right of the board 41mm instead.
 
 #### Split power plane
+The left hand side has a 3.3V power plane, for logic, while the right has a 12V power plane for the higher powered componenets. The 5V net is a short, thick trace between the output of the buck converter and the input of the LDO, somewhere in the middle of the board.
 
 #### Screw terminal connectors
+Screw terminal connectors were chosen as they are very compact for their current carrying capabilities. Standard screw terminal connectors (5mm pitch) are rated for around 15A, which is just about at the upper side of our current budget. The disadvantage however is their susceptibility to reverse polarity, as it is a reversible connector. Furthermore, we would find out making 14AWG wire ends that fit in the connector to be a time consuming, painful process, especially without a proper crimping tool.
 
 #### UART headers
+For UART I decided standard 2.54mm pitch header pins was the way to go. While this isn't a bad choice, for a next design I'd probably opt for a JST GH or even SH, as this would be locking and slightly more secure.
 
 #### XT GH for CAN bus
+I went with a non-reversible locking connector for the CAN bus connector. While Molex connectors are more expensive, they're certainly worth it for components such as motors that you don't want unplugging randomly during operation. The JST GH is perfect for the CAN bus as it doesn't carry much current, so the small form factor is very convenient. You can also get female connectors for relatively cheap with pre-crimped wires, so making your own connector is easy.
 
 #### Molex connectors for servo
+For ease of use, I chose the board connectors that the waveshare ST series drivers already use. The female end (wires) use the SPOX mini 5264 3 pin connector, so I found the equivalent male board connector, the 5267. These can carry up to 3A per connection, which is perfect for motors that stall at 2.7A. Because of the likelihood of a stall, I gave each motor its own connector so we wouldn't have to worry about more current going through a contact and damaging the connection.
 
-#### Final placement
+#### Status LEDs
+I opted for 2 status LEDs, one for the 12V net and one for the 3.3V net, to show that power was correctly biased and reaching the correct components.
 
 ### Phase 5 - DFM check and manufacture
 
+#### Silkscreen
+In terms of DFM, I make sure that I avoid putting vias in pads if possible, and give as many components as possible good silkscreen labels. In terms of our end use, it is very important to label the connector pins/orientations. I skipped this on the power inputs and this later proved to be a costly mistake.
+
+#### Final BOM
+![Final BOM for manufacture](BOM-marshgazers.csv)
+
 ### Phase 6 - Verification
+On receiving the boards it is important to have a good bringup process
+
+#### First power - supply
+If you want to avoid smoke, fires and blown fuses, it is a good idea to start by powering your board through a power supply, in a current controlled mode.
+
+Before even plugging in, inspection with a multimeter is a good idea. Using the continuity mode, check that the ground nets are all ground, and that other nets do not short to ground around the board. If you are unsure of polarity, double check with this. With a functioning reverse bias protection MOSFET, the VBat_in terminal should not be on the same net as the +12V in the board, when there is no power supplied. Then with a moderate current, enough to power the MCU at least (0.2A maybe), power on the board. If LEDs are on and there is no smoke, you are probably good. If you have any issues at this point, do some debugging by turning down the current limit even lower (0.1A) and you can check which components are getting hot with some isopropyl alcohol or a heat gun. If everything is going alright, you can switch away of increase the current limit.
+
+Next, on a low current, again check the reverse bias protection. Reverse the power connector and watch... the power shouldn't turn on, and nothing should smoke or get hot either. The circuit should be open. Verify with a multimeter that the power is not going past the MOSFET.
+
+After this, I tested that we could power the Jetson at the same time. I had cut the ends off a DC barrel jack connector, tested the nets with a multimeter and soldered on the bulk capacitor, before inserting it the correct way into the second screw terminal. This time, with a 1A current limit I powered it on, and the Jetson's status LED started up. I was able to SSH in, and could see the Jetson was powered at the same time.
+
+#### Communication functions
+The next step was to check I could speak to the Jetson from the board and vice versa. Unfortunately due to the Jetson being borrowed, I couldn't solder the CAN headers on so UART was now our main communication channel. I used the Jetson's bare IO to probe the UART connnection once wired up and confirmed pings were being received. Unfortunately it turned out there was a bug in the Jetpack firmware, where DMA UART receive was not working at all, so we had to switch to a high baud rate polling instead.
+
+#### Motor driving
+I then tested a single motor plugged in, driving it through a test script that just sent a motor command over UART from the board. I realised I had missed out on putting a pull up resistor on the UART connection, meaning the signal was not being sent properly. I believe in the half duplex mode the UART operates in an open drain fashion for these motors. Luckily, the STM32s are robust and we were able to drive by operating the UART in a push pull mode instead, as motors are addressed one at a time anyway.
+
+#### Battery power
+Once all functions are confirmed, it is probably safe to power via the battery. After making sure it is charged, it is plugged in and we confirmed that both the board and the Jetson were successfully running on battery power.
 
 ### Phase 7 - Final firmware
+
+#### Micro ROS
+
+#### OTA Programming
+
+#### Motor ID assignment
+
+#### Motor Controller
+
+#### Sensor Publishing
 
 ## Engineering Analysis
 
