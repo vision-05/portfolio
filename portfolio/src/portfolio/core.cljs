@@ -1,6 +1,6 @@
 (ns portfolio.core
   (:require
-   [reagent.dom :as rdom]
+   [reagent.dom.client :as rdomc]
    [re-frame.core :as re-frame]
    [portfolio.events :as events]
    [portfolio.views :as views]
@@ -11,11 +11,15 @@
   (when config/debug?
     (println "dev mode")))
 
+(defonce !root (atom nil))
+
+(defn root []
+  (or @!root
+      (reset! !root (rdomc/create-root (.getElementById js/document "app")))))
+
 (defn ^:dev/after-load mount-root []
   (re-frame/clear-subscription-cache!)
-  (let [root-el (.getElementById js/document "app")]
-    (rdom/unmount-component-at-node root-el)
-    (rdom/render [views/main-panel] root-el)))
+  (rdomc/render (root) [views/main-panel]))
 
 (defn init []
   (re-frame/dispatch-sync [::events/initialize-db])

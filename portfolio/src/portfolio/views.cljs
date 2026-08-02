@@ -4,7 +4,7 @@
    [portfolio.subs :as subs]
    [portfolio.events :as events]
    [reagent.core :as r]
-   [reagent.dom :as rdom]
+   [reagent.dom.client :as rdomc]
    [markdown.core :refer [md->html]]
    ))
 
@@ -29,22 +29,25 @@
           :throwOnError false})))
 
 (defn blog-post-view []
-  (r/create-class
-    {:component-did-mount
-     (fn [this] 
-       (render-math! (rdom/dom-node this)))
-        
-     :component-did-update
-     (fn [this] 
-       (render-math! (rdom/dom-node this)))
-        
-     :reagent-render
-     (fn []
-       (let [cur-post @(re-frame/subscribe [::subs/cur-post])
-             posts    @(re-frame/subscribe [::subs/posts])]
-         (if cur-post
-           [:div {:dangerouslySetInnerHTML {:__html (md->html (get posts cur-post))}}]
-           [:div "Loading post..."])))}))
+  (let [!el (atom nil)
+        ref-fn #(reset! !el %)]
+    (r/create-class
+      {:component-did-mount
+       (fn [_]
+         (when-let [el @!el]
+           (render-math! el)))
+       :component-did-update
+       (fn [_]
+         (when-let [el @!el]
+           (render-math! el)))
+       :reagent-render
+       (fn []
+         (let [cur-post @(re-frame/subscribe [::subs/cur-post])
+               posts @(re-frame/subscribe [::subs/posts])]
+           (if cur-post
+             [:div {:ref ref-fn
+                    :dangerouslySetInnerHTML {:__html (md->html (get posts cur-post))}}]
+             [:div "Loading post..."])))})))
 
 (defn error-view []
   (let [error @(re-frame/subscribe [::subs/error])]
