@@ -5,6 +5,7 @@
    [portfolio.events :as events]
    [reagent.core :as r]
    [reagent.dom.client :as rdomc]
+   [clojure.string :as str]
    [markdown.core :refer [md->html]]
    ))
 
@@ -26,7 +27,23 @@
      ;; Configure the delimiters you want to use in your markdown
      #js {:delimiters #js [#js {:left "$$" :right "$$" :display true}
                            #js {:left "$" :right "$" :display false}]
-          :throwOnError false})))
+          :throwOnError true})))
+
+
+(defn expand-attrs [s]
+  (str/replace s #"(?m)^(#{1,6})\s+(.*?)\s*\{\.([\w-]+)\}\s*$"
+               (fn [[_ hashes text cls]]
+                 (let [n (count hashes)]
+                   (str "<h" n " class=\"" cls "\">" text "</h" n ">")))))
+
+(defn csv->md-table [rows]
+  (let [esc #(str/replace (str %) "|" "\\|")
+        fmt #(str "| " (str/join " | " (map esc %)) " |")
+        [header & body] rows]
+    (str/join "\n"
+      (concat [(fmt header)
+               (fmt (repeat (count header) "---"))]
+              (map fmt body)))))
 
 (defn blog-post-view []
   (let [!el (atom nil)
@@ -44,9 +61,9 @@
        (fn []
          (let [cur-post @(re-frame/subscribe [::subs/cur-post])
                posts @(re-frame/subscribe [::subs/posts])]
-           (if cur-post
-             [:div {:ref ref-fn
-                    :dangerouslySetInnerHTML {:__html (md->html (get posts cur-post))}}]
+           (if (some? cur-post)
+             [:div.post {:ref ref-fn
+                    :dangerouslySetInnerHTML (r/unsafe-html (md->html (expand-attrs (get posts cur-post))))}]
              [:div "Loading post..."])))})))
 
 (defn error-view []

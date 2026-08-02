@@ -1,6 +1,6 @@
 # Cart pole kit
 
-## Project Statement
+## Project Statement {.glow}
 
 Design and manufacture a free moving robot.
 

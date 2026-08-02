@@ -4,7 +4,7 @@
   --panel-bg: #ffffff;
   --text-main: #000000;
   --text-muted: #000000;
-  
+
   --waterloo: #76D0BD;
   
   --font-tech: 'Share Tech Mono', monospace;
@@ -31,11 +31,25 @@ body {
   background-position: center center;
 }
 
+.post {
+	margin-inline: auto;
+	max-width: 80ch;
+}
+
 h1, h2, h3 {
   color: var(--text-main);
   text-transform: uppercase;
   letter-spacing: 2px;
   margin-bottom: 1rem;
+}
+
+p {
+	margin-block: 1rem;
+	max-width: 80ch;
+}
+
+.glow {
+	color: var(--waterloo);
 }
 
 /* --- 2. Typography & Effects --- */
@@ -164,4 +178,8 @@ button.cyber-btn:hover::before {
 
 td {
   border: 2px solid var(--waterloo);
+}
+
+ul, ol {
+	padding-left: 1.5rem;
 }
