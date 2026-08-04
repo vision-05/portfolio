@@ -163,7 +163,46 @@ I opted for 2 status LEDs, one for the 12V net and one for the 3.3V net, to show
 In terms of DFM, I make sure that I avoid putting vias in pads if possible, and give as many components as possible good silkscreen labels. In terms of our end use, it is very important to label the connector pins/orientations. I skipped this on the power inputs and this later proved to be a costly mistake.
 
 #### Final BOM
-![Final BOM for manufacture](BOM-marshgazers.csv)
+
+| Comment | Designator | Footprint | LCSC | Quantity |
+| --- | --- | --- | --- | --- |
+| 0.1u | C1,C10,C11,C12,C2,C4,C9 | C_0402_1005Metric | C307331 | 7 |
+| 1.37k | R4 | R_0402_1005Metric | C159124 | 1 |
+| 1.8k | R12 | R_0402_1005Metric | C25871 | 1 |
+| 100 | R13 | R_0402_1005Metric | C25076 | 1 |
+| 10k | R10,R3,R5,R6,R7 | R_0402_1005Metric | C25744 | 5 |
+| 10k | R8 | R_0603_1608Metric | C25804 | 1 |
+| 10n | C3 | C_0402_1005Metric | C15195 | 1 |
+| 120 | R9 | R_0402_1005Metric | C25079 | 1 |
+| 1u | C6,C7 | C_0402_1005Metric | C52923 | 2 |
+| 3.3k | R11 | R_0402_1005Metric | C25890 | 1 |
+| 4.7u | C5 | C_0402_1005Metric | C23733 | 1 |
+| 470u | C8 | CP_Elec_8x10.5 | C26236113 | 1 |
+| 68.1k | R1 | R_0402_1005Metric | C11537 | 1 |
+| 9.53k | R2 | R_0402_1005Metric | C96273 | 1 |
+| Conn_01x04_Pin | J6 | JST_GH_BM04B-GHS-TBT_1x04-1MP_P1.25mm_Vertical | C161692 | 1 |
+| Conn_ARM_JTAG_SWD_10 | J10 | PinHeader_2x05_P1.27mm_Vertical_SMD | C448647 | 1 |
+| ECS-TXO-2016-33-160-TR | XTAL1 | TXO-2016_ECS | C2451469 | 1 |
+| FerriteBead | FB1 | R_0201_0603Metric | C5159964 | 1 |
+| LED | D1,D2 | R_0402_1005Metric | C130723 | 2 |
+| LSM6DSV16XTR | U5 | LGA-14L_STM | C5267406 | 1 |
+| SMAJ13CA-13-F | CR1 | SMA_DIO | C134951 | 1 |
+| SQJ461EP-T1_GE3 | U6 | SO-8L_VIS | C3279500 | 1 |
+| STM32G4A1KEUx | U1 | QFN-32-1EP_5x5mm_P0.5mm_EP3.45x3.45mm | C3225626 | 1 |
+| TJA1051T_3 | U2 | SOT96-1 | C58988 | 1 |
+| TPS7A0533PDQNR | U4 | Texas_X2SON-4_1x1mm_P0.65mm | C2870713 | 1 |
+| Conn_01x03_Pin | J3 | MOLEX_22035035 | — | 1 |
+| Conn_01x03_Pin | J4 | MOLEX_22035035 | — | 1 |
+| Conn_01x03_Pin | J8 | MOLEX_22035035 | — | 1 |
+| RPX-2.5-CT | U3 | RPX-2.5 | — | 1 |
+| Conn_01x02_Pin | J9 | PinHeader_1x02_P2.54mm_Vertical | — | 1 |
+| SW_Push | SW1 | SW_PUSH_6mm | — | 1 |
+| Screw_Terminal_01x02 | J1 | TerminalBlock_Phoenix_MKDS-1,5-2_1x02_P5.00mm_Horizontal | — | 1 |
+| Conn_01x03_Pin | J2 | MOLEX_22035035 | — | 1 |
+| Conn_01x03_Pin | J5 | MOLEX_22035035 | — | 1 |
+| Conn_01x03_Pin | J7 | MOLEX_22035035 | — | 1 |
+| Screw_Terminal_01x02 | J11 | TerminalBlock_Phoenix_MKDS-1,5-2_1x02_P5.00mm_Horizontal | — | 1 |
+ 
 
 ### Phase 6 - Verification
 On receiving the boards it is important to have a good bringup process
@@ -189,14 +228,13 @@ Once all functions are confirmed, it is probably safe to power via the battery. 
 ### Phase 7 - Final firmware
 
 #### Micro ROS
+In order to work seamlessly with the code authored for our navigation and control stack, as well as the main robot and simulation code, the control board was loaded with micro-ros, using UART as the transport medium. We published to /imu/aux and a battery voltage channel, as well as implementing PID controller for motor commands. Odometry was also published from the micro ros node.
 
 #### OTA Programming
+Over the Air programming was implemented. Using the Jetson, a UART programming bridge was set up in the firmware, through a ROS topic that could be sent the compiled binary code to be flashed. The firmware could then flash the new program and reboot into the newly-installed firmware. Because we would SSH into the wifi connected Jetson, this would act as an over the air programming interface.
 
 #### Motor ID assignment
-
-#### Motor Controller
-
-#### Sensor Publishing
+In order to use the motors individually, as 6 were on one single bus, we had to assign the proper unique IDs, which involved writing a program that scanned the bus and read IDs, and then sent the command to program a new ID to a motor. Then, plugging the motors in one by one, they were given IDs from one to six and mapped to their respective positions.
 
 ## Engineering Analysis
 
@@ -205,7 +243,10 @@ The board worked perfectly. There was never any need for a v2 and besides one ac
 
 ### Improvements to make
 #### Connector polarity
+The screw terminal connectors were not marked for polarity, meaning one fateful day the polarity was easily reversed. Luckily our P channel MOSFET protected the circuit from this, but the screw terminals had another issue, where one of them actually broke because of the tension from the thick 14AWG wires feeding in pulling up and causing the contact to break.
 
 #### Connector choice
+To alleviate this, a smart choice would have been a right angled XT30 through hole connector, which solves both the polarity issue and structural integrity, while keeping in a small form factor for both the power to the Jetson and from the battery.
 
 #### Full spice simulation
+The board was designed with many calculations and consultations to datasheets, bode plots and overall care, but I chose not to do any in depth studies on interference between components and signals, parasitics and the like. This was necessary because of the short time frame I had to make the board (1 week design + 1 week for manufacture), although for completeness and best engineering practice it would've been a good idea.
